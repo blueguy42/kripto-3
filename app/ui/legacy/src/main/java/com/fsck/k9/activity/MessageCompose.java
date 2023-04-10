@@ -40,6 +40,9 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewStub;
 import android.view.Window;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -328,6 +331,34 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         subjectView = findViewById(R.id.subject);
         subjectView.getInputExtras(true).putBoolean("allowEmoji", true);
+
+        EditText encryptKeyEditText = findViewById(R.id.encryptKey);
+        CheckBox encryptCheckbox = ( CheckBox ) findViewById(R.id.encryptCheck);
+        encryptCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    encryptKeyEditText.setVisibility(View.VISIBLE);
+                } else {
+                    encryptKeyEditText.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        EditText signKeyEditText = findViewById(R.id.signPrivateKey);
+        CheckBox signCheckbox = ( CheckBox ) findViewById(R.id.signCheck);
+        signCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    signKeyEditText.setVisibility(View.VISIBLE);
+                } else {
+                    signKeyEditText.setVisibility(View.GONE);
+                }
+            }
+        });
 
         EditText upperSignature = findViewById(R.id.upper_signature);
         EditText lowerSignature = findViewById(R.id.lower_signature);
