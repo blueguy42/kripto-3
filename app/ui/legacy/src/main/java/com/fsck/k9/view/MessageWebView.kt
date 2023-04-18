@@ -75,6 +75,7 @@ class MessageWebView : WebView {
     ) {
         setWebViewClient(attachmentResolver, onPageFinishedListener)
         setHtmlContent(htmlText)
+        println(htmlText)
     }
 
     private fun setWebViewClient(
