@@ -2,6 +2,7 @@ package com.fsck.k9.activity;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -117,6 +118,7 @@ import com.fsck.k9.message.SimpleMessageFormat;
 import com.fsck.k9.retrofit.RetrofitAPI;
 import com.fsck.k9.retrofit.RetrofitHandler;
 import com.fsck.k9.retrofit.response.KeyResponse;
+import com.fsck.k9.retrofit.response.SignResponse;
 import com.fsck.k9.search.LocalSearch;
 import com.fsck.k9.ui.R;
 import com.fsck.k9.ui.base.K9Activity;
@@ -832,13 +834,32 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             recipientPresenter.builderSetProperties(builder);
         }
 
-        // MESSAGE ASLI: messageContentView.getText()
+        final String[] message = { messageContentView.getText().toString() };
         // GANTI DENGAN HASIL ENKRIPSI/SIGN
+
+        if (isSigned) {
+            RetrofitAPI retrofitAPI = RetrofitHandler.getApiService();
+            Call<SignResponse> call = retrofitAPI.sign(message[0], privateKey);
+
+            try {
+                Response<SignResponse> response = call.execute();
+                if (response.isSuccessful()) {
+                    SignResponse signResponse = response.body();
+                    String signedText = signResponse.getSignedText();
+                    message[0] = signedText;
+                } else {
+                    Toast toast = Toast.makeText(this, "Gagal Sign", Toast.LENGTH_SHORT);
+                }
+            } catch (IOException e) {
+                Toast toast = Toast.makeText(this, "Gagal Sign", Toast.LENGTH_SHORT);
+            }
+        }
 
         System.out.println("isEncrypted: " + isEncrypted);
         System.out.println("isSigned: " + isSigned);
         System.out.println("encryptKey: " + encryptKey);
         System.out.println("privateKey: " + privateKey);
+        System.out.println("message: " + messageContentView.getText().toString());
 
         builder.setSubject(Utility.stripNewLines(subjectView.getText().toString()))
                 .setSentDate(new Date())
@@ -849,8 +870,8 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 .setIdentity(identity)
                 .setReplyTo(replyToPresenter.getAddresses())
                 .setMessageFormat(currentMessageFormat)
-                .setText(CrLfConverter.toCrLf(messageContentView.getText()))
-                // .setText("LIZA") GANTI DISINI
+//                .setText(CrLfConverter.toCrLf(messageContentView.getText()))
+                 .setText(message[0])
                 .setAttachments(attachmentPresenter.getAttachments())
                 .setInlineAttachments(attachmentPresenter.getInlineAttachments())
                 .setSignature(CrLfConverter.toCrLf(signatureView.getText()))
@@ -925,6 +946,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     }
 
     public void performSendAfterChecks() {
+        System.out.println("performSendAfterChecks LOL");
         if (sendMessageHasBeenTriggered) {
             return;
         }
