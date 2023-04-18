@@ -8,6 +8,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StrictMode
+import android.telecom.Call
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
@@ -36,6 +39,7 @@ import com.fsck.k9.mailstore.AttachmentViewInfo
 import com.fsck.k9.mailstore.MessageViewInfo
 import com.fsck.k9.message.html.DisplayHtml
 import com.fsck.k9.retrofit.RetrofitHandler
+import com.fsck.k9.retrofit.response.KeyResponse
 import com.fsck.k9.ui.R
 import com.fsck.k9.view.MessageWebView
 import com.fsck.k9.view.MessageWebView.OnPageFinishedListener
@@ -74,6 +78,10 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
     var hasHiddenExternalImages = false
         private set
 
+    // ADD ONS DECRYPT AND VERIFY
+    private var decryptKey: String = ""
+    private var publicKey: String = ""
+
     public override fun onFinishInflate() {
         super.onFinishInflate()
 
@@ -88,15 +96,73 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             visibility = VISIBLE
         }
 
+        // --------------------------------------------------------------------------------
+        val decryptKeyEditText = findViewById<EditText>(R.id.decryptKey);
+        val verifyPublicKeyEditText = findViewById<EditText>(R.id.verifyPublicKey);
+        val decryptedVerifyMessageText = findViewById<TextView>(R.id.decryptedVerifyMessage);
         val decryptButton = findViewById<Button>(R.id.decryptButton);
-        val decryptKey = findViewById<EditText>(R.id.decryptKey);
+        val verifyButton = findViewById<Button>(R.id.verifyButton);
+        val decryptVerifyButton = findViewById<Button>(R.id.decryptVerifyButton);
+        // idk harus di set visibility awal lagi
+        decryptButton.visibility = View.GONE
+        verifyButton.visibility = View.GONE
+        decryptVerifyButton.visibility = View.GONE
+
+        decryptKeyEditText.addTextChangedListener(
+            object : TextWatcher {
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    decryptKey = s.toString();
+                    if (decryptKey != "" && publicKey != "") {
+                        decryptVerifyButton.visibility = View.VISIBLE
+                        decryptButton.visibility = View.GONE
+                        verifyButton.visibility = View.GONE
+                    }
+                    else if (decryptKey != "") {
+                        decryptButton.visibility = View.VISIBLE
+                        decryptVerifyButton.visibility = View.GONE
+                        verifyButton.visibility = View.GONE
+                    }
+                    else {
+                        decryptButton.visibility = View.GONE
+                        decryptVerifyButton.visibility = View.GONE
+                        verifyButton.visibility = View.GONE
+                    }
+                }
+                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                override fun afterTextChanged(s: Editable) {}
+            },
+        )
+        verifyPublicKeyEditText.addTextChangedListener(
+            object : TextWatcher {
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    publicKey = s.toString();
+                    if (publicKey != "" && decryptKey != "") {
+                        decryptVerifyButton.visibility = View.VISIBLE
+                        verifyButton.visibility = View.GONE
+                        decryptButton.visibility = View.GONE
+                    }
+                    else if (publicKey != "") {
+                        verifyButton.visibility = View.VISIBLE
+                        decryptVerifyButton.visibility = View.GONE
+                        decryptButton.visibility = View.GONE
+                    }
+                    else {
+                        verifyButton.visibility = View.GONE
+                        decryptVerifyButton.visibility = View.GONE
+                        decryptButton.visibility = View.GONE
+                    }
+                }
+                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                override fun afterTextChanged(s: Editable) {}
+            },
+        )
+
         decryptButton.setOnClickListener {
-            val key = decryptKey.text.toString();
+            val key = decryptKey;
             if (key.length == 16) {
                 println("decrypt key: " + key);
                 val plainMessage = messageContentView.parseMessage()
                 println("PLAIN MESSAGE: " + plainMessage)
-                val decryptedMessageText = findViewById<TextView>(R.id.decryptedMessage)
 
                 val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
                 StrictMode.setThreadPolicy(policy)
@@ -112,8 +178,8 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
                         println("DECRYPT $plaintext");
                         Toast.makeText(context, plaintext, Toast.LENGTH_SHORT)
 
-                        decryptedMessageText.text = plaintext
-                        decryptedMessageText.visibility = View.VISIBLE
+                        decryptedVerifyMessageText.text = plaintext
+                        decryptedVerifyMessageText.visibility = View.VISIBLE
                     } else {
                         Toast.makeText(context, "Decryption failed", Toast.LENGTH_SHORT)
                     }
@@ -125,18 +191,19 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             }
         }
 
-        val verifyButton = findViewById<Button>(R.id.verifyButton);
-        val verifyKey = findViewById<EditText>(R.id.verifyKey);
         verifyButton.setOnClickListener {
-            val key = verifyKey.text.toString();
+            val key = publicKey;
             if (key != "") {
                 println("verify key: " + key);
+
+                val plainMessage = messageContentView.parseMessage()
+                println("PLAIN MESSAGE: " + plainMessage)
 
                 val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
                 StrictMode.setThreadPolicy(policy)
 
                 val retrofitAPI = RetrofitHandler.getApiService()
-                val call = retrofitAPI.verify("Hello guis and dis is Afan.\n\nSincerely, Afan.\n<ds>ca489ef6908a0764a6875a82b86e8fa97ef1811830c77bf20811164ae7d3a1333b3f75f525dd6f86b29a4df55a1963cce3027ac33682fd7cb43db1acbada5c52</ds>", key)
+                val call = retrofitAPI.verify(plainMessage, key)
 
                 try {
                     val response = call.execute()
@@ -145,6 +212,8 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
                         val valid = verifyResponse!!.valid
                         println("VALID? $valid");
                         Toast.makeText(context, valid.toString(), Toast.LENGTH_SHORT)
+                        decryptedVerifyMessageText.text = "Verified: $valid"
+
                     } else {
                         Toast.makeText(context, "Validation failed", Toast.LENGTH_SHORT)
                     }
@@ -156,6 +225,61 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             }
         }
 
+        decryptVerifyButton.setOnClickListener() {
+            if (decryptKey.length == 16) {
+                println("decrypt key: " + decryptKey);
+                val plainMessage = messageContentView.parseMessage()
+                println("PLAIN MESSAGE: " + plainMessage)
+
+                val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                StrictMode.setThreadPolicy(policy)
+
+                val retrofitAPI = RetrofitHandler.getApiService()
+                val call = retrofitAPI.decrypt(plainMessage, decryptKey)
+
+                try {
+                    val response = call.execute()
+                    if (response.isSuccessful) {
+                        val decryptResponse = response.body()
+                        val plaintext = decryptResponse!!.plaintext
+                        println("DECRYPT $plaintext");
+                        Toast.makeText(context, plaintext, Toast.LENGTH_SHORT)
+                        if (publicKey != "") {
+                            println("verify key: " + publicKey);
+
+                            val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                            StrictMode.setThreadPolicy(policy)
+
+                            val retrofitAPI = RetrofitHandler.getApiService()
+                            val call = retrofitAPI.verify(plaintext, publicKey)
+
+                            try {
+                                val response = call.execute()
+                                if (response.isSuccessful) {
+                                    val verifyResponse = response.body()
+                                    val valid = verifyResponse!!.valid
+                                    println("VALID? $valid");
+                                    Toast.makeText(context, valid.toString(), Toast.LENGTH_SHORT)
+                                    decryptedVerifyMessageText.text = "Verified: $valid \n\n$plaintext"
+                                } else {
+                                    Toast.makeText(context, "Validation failed", Toast.LENGTH_SHORT)
+                                }
+                            } catch (e: IOException) {
+                                Toast.makeText(context, "Validation failed", Toast.LENGTH_SHORT)
+                            }
+                        } else {
+                            Toast.makeText(context, "Empty key.", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(context, "Decryption failed", Toast.LENGTH_SHORT)
+                    }
+                } catch (e: IOException) {
+                    Toast.makeText(context, "Decryption failed", Toast.LENGTH_SHORT)
+                }
+            } else {
+                Toast.makeText(context, "Key must 16 character. Length now: " + decryptKey.length, Toast.LENGTH_LONG).show();
+            }
+        }
 
 
 

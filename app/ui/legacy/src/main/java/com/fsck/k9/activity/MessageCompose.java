@@ -360,7 +360,6 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         EditText encryptKeyEditText = findViewById(R.id.encryptKey);
         SwitchCompat toggleEncrypt = findViewById(R.id.toggleEncrypt);
 
-        // if encryptKeyEditText is changed, update encryptKey
         encryptKeyEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {

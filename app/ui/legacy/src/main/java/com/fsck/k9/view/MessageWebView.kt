@@ -2,6 +2,7 @@ package com.fsck.k9.view
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.text.Html
 import android.util.AttributeSet
 import android.webkit.WebSettings.LayoutAlgorithm
 import android.webkit.WebSettings.RenderPriority
@@ -105,6 +106,6 @@ class MessageWebView : WebView {
         val contentMatcher = Regex("<body><div dir=\"auto\">(.*)</div></body>", RegexOption.MULTILINE)
         val matches = contentMatcher.find(currentHTMLText!!)
         val message = matches!!.groupValues[1]
-        return message;
+        return Html.fromHtml(message).toString()
     }
 }
