@@ -114,6 +114,9 @@ import com.fsck.k9.message.PgpMessageBuilder;
 import com.fsck.k9.message.QuotedTextMode;
 import com.fsck.k9.message.SimpleMessageBuilder;
 import com.fsck.k9.message.SimpleMessageFormat;
+import com.fsck.k9.retrofit.RetrofitAPI;
+import com.fsck.k9.retrofit.RetrofitHandler;
+import com.fsck.k9.retrofit.response.KeyResponse;
 import com.fsck.k9.search.LocalSearch;
 import com.fsck.k9.ui.R;
 import com.fsck.k9.ui.base.K9Activity;
@@ -129,6 +132,9 @@ import com.fsck.k9.ui.permissions.PermissionUiHelper;
 import org.jetbrains.annotations.NotNull;
 import org.openintents.openpgp.OpenPgpApiManager;
 import org.openintents.openpgp.util.OpenPgpApi;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import timber.log.Timber;
 
 
@@ -365,11 +371,34 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     // CALL FUNCTION TO GENERATE KEY
-                    String privateKey = "Private Key: Liza";
-                    String publicKey = "Public Key: Kucing";
-                    signPrivateKeyText.setText(privateKey);
-                    signPublicKeyText.setText(publicKey);
-                    signKeyContainer.setVisibility(View.VISIBLE);
+                    RetrofitAPI retrofitAPI = RetrofitHandler.getApiService();
+                    Call<KeyResponse> call = retrofitAPI.generateKey();
+
+                    call.enqueue(new Callback<KeyResponse>() {
+                        @Override
+                        public void onResponse(Call<KeyResponse> call, Response<KeyResponse> response) {
+                            if (response.isSuccessful()) {
+                                KeyResponse keyResponse = response.body();
+                                String privateKey = "Private Key: " + keyResponse.getPrivateKey();
+                                String publicKey = "Public Key: " + keyResponse.getPublicKey();
+                                signPrivateKeyText.setText(privateKey);
+                                signPublicKeyText.setText(publicKey);
+                                signKeyContainer.setVisibility(View.VISIBLE);
+                            } else {
+                                // Handle error
+                                signPrivateKeyText.setText("Private Key: <INVALID>");
+                                signPublicKeyText.setText("Public Key: <INVALID>");
+                                signKeyContainer.setVisibility(View.VISIBLE);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<KeyResponse> call, Throwable t) {
+                            signPrivateKeyText.setText("Private Key: <INVALID>");
+                            signPublicKeyText.setText("Public Key: <INVALID>");
+                            signKeyContainer.setVisibility(View.VISIBLE);
+                        }
+                    });
                 } else {
                     String privateKey = "Private Key: ";
                     String publicKey = "Public Key: ";
