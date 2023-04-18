@@ -259,6 +259,13 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
     private boolean sendMessageHasBeenTriggered = false;
 
+    // ADD ONS ENCRYPT & SIGN
+    private boolean isEncrypted = false;
+    private boolean isSigned = false;
+    private String encryptKey = "";
+    private String privateKey = "";
+    private String publicKey = "";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -353,8 +360,11 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    isEncrypted = true;
                     encryptKeyEditText.setVisibility(View.VISIBLE);
+                    encryptKey = encryptKeyEditText.getText().toString();
                 } else {
+                    isEncrypted = false;
                     encryptKeyEditText.setVisibility(View.GONE);
                 }
             }
@@ -370,6 +380,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    isSigned = true;
                     // CALL FUNCTION TO GENERATE KEY
                     RetrofitAPI retrofitAPI = RetrofitHandler.getApiService();
                     Call<KeyResponse> call = retrofitAPI.generateKey();
@@ -379,10 +390,10 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                         public void onResponse(Call<KeyResponse> call, Response<KeyResponse> response) {
                             if (response.isSuccessful()) {
                                 KeyResponse keyResponse = response.body();
-                                String privateKey = "Private Key: " + keyResponse.getPrivateKey();
-                                String publicKey = "Public Key: " + keyResponse.getPublicKey();
-                                signPrivateKeyText.setText(privateKey);
-                                signPublicKeyText.setText(publicKey);
+                                privateKey = keyResponse.getPrivateKey();
+                                publicKey = keyResponse.getPublicKey();
+                                signPrivateKeyText.setText("Private Key: " + privateKey);
+                                signPublicKeyText.setText("Public Key: " + publicKey);
                                 signKeyContainer.setVisibility(View.VISIBLE);
                             } else {
                                 // Handle error
@@ -400,10 +411,11 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                         }
                     });
                 } else {
-                    String privateKey = "Private Key: ";
-                    String publicKey = "Public Key: ";
-                    signPrivateKeyText.setText(privateKey);
-                    signPublicKeyText.setText(publicKey);
+                    isSigned = false;
+                    privateKey = "";
+                    publicKey = "";
+                    signPrivateKeyText.setText("Private Key: ");
+                    signPublicKeyText.setText("Public Key: ");
                     signKeyContainer.setVisibility(View.GONE);
                 }
             }
@@ -822,6 +834,11 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         // MESSAGE ASLI: messageContentView.getText()
         // GANTI DENGAN HASIL ENKRIPSI/SIGN
+
+        System.out.println("isEncrypted: " + isEncrypted);
+        System.out.println("isSigned: " + isSigned);
+        System.out.println("encryptKey: " + encryptKey);
+        System.out.println("privateKey: " + privateKey);
 
         builder.setSubject(Utility.stripNewLines(subjectView.getText().toString()))
                 .setSentDate(new Date())
