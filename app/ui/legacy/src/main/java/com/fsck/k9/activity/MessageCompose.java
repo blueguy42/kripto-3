@@ -33,6 +33,8 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
+
+import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -356,6 +358,20 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         // --------------------------------------------------------------------------------
         EditText encryptKeyEditText = findViewById(R.id.encryptKey);
         SwitchCompat toggleEncrypt = findViewById(R.id.toggleEncrypt);
+
+        // if encryptKeyEditText is changed, update encryptKey
+        encryptKeyEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                encryptKey = s.toString();
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         toggleEncrypt.setOnCheckedChangeListener(new OnCheckedChangeListener()
         {
@@ -896,7 +912,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         }
 
         if (isEncrypted && encryptKey.length() != 16) {
-            Toast.makeText(this, "Key must 16 character", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Key must 16 character. Lenght now: " + encryptKey.length(), Toast.LENGTH_LONG).show();
             return;
         }
 
