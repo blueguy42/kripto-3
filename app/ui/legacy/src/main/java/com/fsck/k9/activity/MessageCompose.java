@@ -119,6 +119,7 @@ import com.fsck.k9.message.SimpleMessageBuilder;
 import com.fsck.k9.message.SimpleMessageFormat;
 import com.fsck.k9.retrofit.RetrofitAPI;
 import com.fsck.k9.retrofit.RetrofitHandler;
+import com.fsck.k9.retrofit.response.EncryptResponse;
 import com.fsck.k9.retrofit.response.KeyResponse;
 import com.fsck.k9.retrofit.response.SignResponse;
 import com.fsck.k9.search.LocalSearch;
@@ -864,18 +865,29 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                     String signedText = signResponse.getSignedText();
                     message[0] = signedText;
                 } else {
-                    Toast toast = Toast.makeText(this, "Gagal Sign", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(this, "Signing failed", Toast.LENGTH_SHORT);
                 }
             } catch (IOException e) {
-                Toast toast = Toast.makeText(this, "Gagal Sign", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(this, "Signing failed", Toast.LENGTH_SHORT);
             }
         }
+        if (isEncrypted) {
+            RetrofitAPI retrofitAPI = RetrofitHandler.getApiService();
+            Call<EncryptResponse> call = retrofitAPI.encrypt(message[0], encryptKey);
 
-        System.out.println("isEncrypted: " + isEncrypted);
-        System.out.println("isSigned: " + isSigned);
-        System.out.println("encryptKey: " + encryptKey);
-        System.out.println("privateKey: " + privateKey);
-        System.out.println("message: " + messageContentView.getText().toString());
+            try {
+                Response<EncryptResponse> response = call.execute();
+                if (response.isSuccessful()) {
+                    EncryptResponse encryptResponse = response.body();
+                    String cipherText = encryptResponse.getCiphertext();
+                    message[0] = cipherText;
+                } else {
+                    Toast.makeText(this, "Encryption failed", Toast.LENGTH_SHORT);
+                }
+            } catch (IOException e) {
+                Toast.makeText(this, "Encryption failed", Toast.LENGTH_SHORT);
+            }
+        }
 
         builder.setSubject(Utility.stripNewLines(subjectView.getText().toString()))
                 .setSentDate(new Date())
@@ -912,7 +924,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         }
 
         if (isEncrypted && encryptKey.length() != 16) {
-            Toast.makeText(this, "Key must 16 character. Lenght now: " + encryptKey.length(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Key must 16 character. Length now: " + encryptKey.length(), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -937,6 +949,11 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             return;
         }
 
+        if (isEncrypted && encryptKey.length() != 16) {
+            Toast.makeText(this, "Key must 16 character. Length now: " + encryptKey.length(), Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (attachmentPresenter.checkOkForSendingOrDraftSaving()) {
             return;
         }
@@ -954,6 +971,11 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             return;
         }
 
+        if (isEncrypted && encryptKey.length() != 16) {
+            Toast.makeText(this, "Key must 16 character. Length now: " + encryptKey.length(), Toast.LENGTH_LONG).show();
+            return;
+        }
+
         finishAfterDraftSaved = false;
         performSaveAfterChecks();
     }
@@ -967,7 +989,6 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     }
 
     public void performSendAfterChecks() {
-        System.out.println("performSendAfterChecks LOL");
         if (sendMessageHasBeenTriggered) {
             return;
         }
