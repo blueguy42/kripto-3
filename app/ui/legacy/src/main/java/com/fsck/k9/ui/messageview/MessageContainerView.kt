@@ -94,12 +94,15 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             val key = decryptKey.text.toString();
             if (key.length == 16) {
                 println("decrypt key: " + key);
+                val plainMessage = messageContentView.parseMessage()
+                println("PLAIN MESSAGE: " + plainMessage)
+                val decryptedMessageText = findViewById<TextView>(R.id.decryptedMessage)
 
                 val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
                 StrictMode.setThreadPolicy(policy)
 
                 val retrofitAPI = RetrofitHandler.getApiService()
-                val call = retrofitAPI.decrypt("STkFoJazP1Wdr92ClC84xKrpqe/zhhxRz80wdWGFDszeKHByXl+8eu7c80cMODHM", key)
+                val call = retrofitAPI.decrypt(plainMessage, key)
 
                 try {
                     val response = call.execute()
@@ -109,7 +112,8 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
                         println("DECRYPT $plaintext");
                         Toast.makeText(context, plaintext, Toast.LENGTH_SHORT)
 
-                        // set html view to plaintext
+                        decryptedMessageText.text = plaintext
+                        decryptedMessageText.visibility = View.VISIBLE
                     } else {
                         Toast.makeText(context, "Decryption failed", Toast.LENGTH_SHORT)
                     }

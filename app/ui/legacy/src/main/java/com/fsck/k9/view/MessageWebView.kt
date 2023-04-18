@@ -14,6 +14,9 @@ class MessageWebView : WebView {
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
+    var currentHTMLText: String? = null
+        private set
+
     fun blockNetworkData(shouldBlockNetworkData: Boolean) {
         // Images with content: URIs will not be blocked, nor will network images that are already in the WebView cache.
         try {
@@ -75,7 +78,6 @@ class MessageWebView : WebView {
     ) {
         setWebViewClient(attachmentResolver, onPageFinishedListener)
         setHtmlContent(htmlText)
-        println(htmlText)
     }
 
     private fun setWebViewClient(
@@ -90,11 +92,19 @@ class MessageWebView : WebView {
     }
 
     private fun setHtmlContent(htmlText: String) {
+        currentHTMLText = htmlText
         loadDataWithBaseURL("about:blank", htmlText, "text/html", "utf-8", null)
         resumeTimers()
     }
 
     fun interface OnPageFinishedListener {
         fun onPageFinished()
+    }
+
+    fun parseMessage(): String? {
+        val contentMatcher = Regex("<body><div dir=\"auto\">(.*)</div></body>", RegexOption.MULTILINE)
+        val matches = contentMatcher.find(currentHTMLText!!)
+        val message = matches!!.groupValues[1]
+        return message;
     }
 }
