@@ -791,6 +791,9 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             recipientPresenter.builderSetProperties(builder);
         }
 
+        // MESSAGE ASLI: messageContentView.getText()
+        // GANTI DENGAN HASIL ENKRIPSI/SIGN
+
         builder.setSubject(Utility.stripNewLines(subjectView.getText().toString()))
                 .setSentDate(new Date())
                 .setHideTimeZone(K9.isHideTimeZone())
@@ -801,6 +804,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 .setReplyTo(replyToPresenter.getAddresses())
                 .setMessageFormat(currentMessageFormat)
                 .setText(CrLfConverter.toCrLf(messageContentView.getText()))
+                // .setText("LIZA") GANTI DISINI
                 .setAttachments(attachmentPresenter.getAttachments())
                 .setInlineAttachments(attachmentPresenter.getInlineAttachments())
                 .setSignature(CrLfConverter.toCrLf(signatureView.getText()))
