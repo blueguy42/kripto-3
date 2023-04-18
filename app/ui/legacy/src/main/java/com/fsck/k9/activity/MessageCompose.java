@@ -49,6 +49,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.SwitchCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fsck.k9.Account;
@@ -333,8 +334,9 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         subjectView.getInputExtras(true).putBoolean("allowEmoji", true);
 
         EditText encryptKeyEditText = findViewById(R.id.encryptKey);
-        CheckBox encryptCheckbox = ( CheckBox ) findViewById(R.id.encryptCheck);
-        encryptCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        SwitchCompat toggleEncrypt = findViewById(R.id.toggleEncrypt);
+
+        toggleEncrypt.setOnCheckedChangeListener(new OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -347,8 +349,9 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         });
 
         EditText signKeyEditText = findViewById(R.id.signPrivateKey);
-        CheckBox signCheckbox = ( CheckBox ) findViewById(R.id.signCheck);
-        signCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        SwitchCompat toggleSign = findViewById(R.id.toggleSign);
+        
+        toggleSign.setOnCheckedChangeListener(new OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -359,6 +362,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 }
             }
         });
+        
 
         EditText upperSignature = findViewById(R.id.upper_signature);
         EditText lowerSignature = findViewById(R.id.lower_signature);

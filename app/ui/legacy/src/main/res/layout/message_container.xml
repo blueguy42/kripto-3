@@ -11,6 +11,29 @@
         android:layout_height="wrap_content"
         android:layout_width="fill_parent" />
 
+    <EditText
+        android:id="@+id/decryptKey"
+        style="@style/ComposeEditTextLarge"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:hint="Enter your decrypt key"
+        android:inputType="text"
+        android:imeOptions="actionNext|flagNoExtractUi"
+        android:singleLine="true"
+        android:background="@android:color/transparent"
+        />
+    <Button
+        android:id="@+id/decryptButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Decrypt"
+        tools:visibility="visible"
+        />
+
     <!-- Unsigned content area -->
     <LinearLayout
         android:layout_width="match_parent"

@@ -45,11 +45,13 @@
 
         <!-- We have to use "wrap_content" (not "0dip") for "layout_height", otherwise the
              EditText won't properly grow in height while the user is typing the message -->
-        <CheckBox
-            android:id="@+id/encryptCheck"
-            android:layout_width="match_parent"
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleEncrypt"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Encrypt" />
+            android:text="Encrypt"
+            android:padding="10dp"
+            android:checked="false" />
 
         <EditText
             android:id="@+id/encryptKey"
@@ -64,11 +66,13 @@
             android:singleLine="true"
             android:visibility="gone" />
 
-        <CheckBox
-            android:id="@+id/signCheck"
-            android:layout_width="match_parent"
+         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/toggleSign"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign" />
+            android:text="Sign"
+            android:padding="10dp"
+            android:checked="false" />
 
         <EditText
             android:id="@+id/signPrivateKey"
