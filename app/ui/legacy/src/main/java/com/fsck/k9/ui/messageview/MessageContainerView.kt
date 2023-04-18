@@ -18,6 +18,8 @@ import android.view.View.OnCreateContextMenuListener
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
+import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -36,6 +38,7 @@ import com.fsck.k9.ui.R
 import com.fsck.k9.view.MessageWebView
 import com.fsck.k9.view.MessageWebView.OnPageFinishedListener
 import com.fsck.k9.view.WebViewConfigProvider
+import java.util.logging.Logger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
@@ -82,6 +85,33 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             setOnCreateContextMenuListener(this@MessageContainerView)
             visibility = VISIBLE
         }
+
+        val decryptButton = findViewById<Button>(R.id.decryptButton);
+        val decryptKey = findViewById<EditText>(R.id.decryptKey);
+        decryptButton.setOnClickListener {
+            val key = decryptKey.text.toString();
+            if (key != null && key != "") {
+                Toast.makeText(context, "decrypt key: " + key, Toast.LENGTH_SHORT).show();
+                println("decrypt key: " + key);
+
+                // CALL DECRYPT FUNCTION HERE
+            }
+        }
+
+        val verifyButton = findViewById<Button>(R.id.verifyButton);
+        val verifyKey = findViewById<EditText>(R.id.verifyKey);
+        verifyButton.setOnClickListener {
+            val key = verifyKey.text.toString();
+            if (key != null && key != "") {
+                Toast.makeText(context, "verify key: " + key, Toast.LENGTH_SHORT).show();
+                println("verify key: " + key);
+
+                // CALL VERIFY FUNCTION HERE
+            }
+        }
+
+
+
 
         attachmentsContainer = findViewById(R.id.attachments_container)
         unsignedTextContainer = findViewById(R.id.message_unsigned_container)

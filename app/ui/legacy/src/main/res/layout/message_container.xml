@@ -34,6 +34,28 @@
         tools:visibility="visible"
         />
 
+    <EditText
+        android:id="@+id/verifyKey"
+        style="@style/ComposeEditTextLarge"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:hint="Enter your verify key"
+        android:inputType="text"
+        android:imeOptions="actionNext|flagNoExtractUi"
+        android:singleLine="true"
+        android:background="@android:color/transparent"
+        />
+    <Button
+        android:id="@+id/verifyButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Verify"
+        tools:visibility="visible"
+        />
     <!-- Unsigned content area -->
     <LinearLayout
         android:layout_width="match_parent"

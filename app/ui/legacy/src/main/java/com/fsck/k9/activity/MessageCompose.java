@@ -14,12 +14,16 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.content.pm.ActivityInfo;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,6 +44,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewStub;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -333,6 +338,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         subjectView = findViewById(R.id.subject);
         subjectView.getInputExtras(true).putBoolean("allowEmoji", true);
 
+        // --------------------------------------------------------------------------------
         EditText encryptKeyEditText = findViewById(R.id.encryptKey);
         SwitchCompat toggleEncrypt = findViewById(R.id.toggleEncrypt);
 
@@ -348,7 +354,9 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             }
         });
 
-        EditText signKeyEditText = findViewById(R.id.signPrivateKey);
+        LinearLayout signKeyContainer = findViewById(R.id.signKeyContainer);
+        TextView signPrivateKeyText = findViewById(R.id.signPrivateKey);
+        TextView signPublicKeyText = findViewById(R.id.signPublicKey);
         SwitchCompat toggleSign = findViewById(R.id.toggleSign);
         
         toggleSign.setOnCheckedChangeListener(new OnCheckedChangeListener()
@@ -356,14 +364,47 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    signKeyEditText.setVisibility(View.VISIBLE);
+                    // CALL FUNCTION TO GENERATE KEY
+                    String privateKey = "Private Key: Liza";
+                    String publicKey = "Public Key: Kucing";
+                    signPrivateKeyText.setText(privateKey);
+                    signPublicKeyText.setText(publicKey);
+                    signKeyContainer.setVisibility(View.VISIBLE);
                 } else {
-                    signKeyEditText.setVisibility(View.GONE);
+                    String privateKey = "Private Key: ";
+                    String publicKey = "Public Key: ";
+                    signPrivateKeyText.setText(privateKey);
+                    signPublicKeyText.setText(publicKey);
+                    signKeyContainer.setVisibility(View.GONE);
                 }
             }
         });
-        
 
+        Button copyPrivateKeyButton = findViewById(R.id.copyPrivateKeyButton);
+        copyPrivateKeyButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                String text = signPrivateKeyText.getText().toString().substring(13); // remove "Private Key: " from text
+                ClipData clip = ClipData.newPlainText("Private Key", text);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), "Private Key Copied", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button copyPublicKeyButton = findViewById(R.id.copyPublicKeyButton);
+        copyPublicKeyButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                String text = signPublicKeyText.getText().toString().substring(12); // remove "Public Key: " from text
+                ClipData clip = ClipData.newPlainText("Public Key", text);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), "Public Key Copied", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        // --------------------------------------------------------------------------------------------
         EditText upperSignature = findViewById(R.id.upper_signature);
         EditText lowerSignature = findViewById(R.id.lower_signature);
 
