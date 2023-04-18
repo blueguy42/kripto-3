@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.StrictMode
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
@@ -34,11 +35,12 @@ import com.fsck.k9.mailstore.AttachmentResolver
 import com.fsck.k9.mailstore.AttachmentViewInfo
 import com.fsck.k9.mailstore.MessageViewInfo
 import com.fsck.k9.message.html.DisplayHtml
+import com.fsck.k9.retrofit.RetrofitHandler
 import com.fsck.k9.ui.R
 import com.fsck.k9.view.MessageWebView
 import com.fsck.k9.view.MessageWebView.OnPageFinishedListener
 import com.fsck.k9.view.WebViewConfigProvider
-import java.util.logging.Logger
+import java.io.IOException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
@@ -90,11 +92,32 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         val decryptKey = findViewById<EditText>(R.id.decryptKey);
         decryptButton.setOnClickListener {
             val key = decryptKey.text.toString();
-            if (key != null && key != "") {
-                Toast.makeText(context, "decrypt key: " + key, Toast.LENGTH_SHORT).show();
+            if (key.length == 16) {
                 println("decrypt key: " + key);
 
-                // CALL DECRYPT FUNCTION HERE
+                val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                StrictMode.setThreadPolicy(policy)
+
+                val retrofitAPI = RetrofitHandler.getApiService()
+                val call = retrofitAPI.decrypt("STkFoJazP1Wdr92ClC84xKrpqe/zhhxRz80wdWGFDszeKHByXl+8eu7c80cMODHM", key)
+
+                try {
+                    val response = call.execute()
+                    if (response.isSuccessful) {
+                        val decryptResponse = response.body()
+                        val plaintext = decryptResponse!!.plaintext
+                        println("DECRYPT $plaintext");
+                        Toast.makeText(context, plaintext, Toast.LENGTH_SHORT)
+
+                        // set html view to plaintext
+                    } else {
+                        Toast.makeText(context, "Decryption failed", Toast.LENGTH_SHORT)
+                    }
+                } catch (e: IOException) {
+                    Toast.makeText(context, "Decryption failed", Toast.LENGTH_SHORT)
+                }
+            } else {
+                Toast.makeText(context, "Key must 16 character. Length now: " + key.length, Toast.LENGTH_LONG).show();
             }
         }
 
@@ -102,11 +125,30 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         val verifyKey = findViewById<EditText>(R.id.verifyKey);
         verifyButton.setOnClickListener {
             val key = verifyKey.text.toString();
-            if (key != null && key != "") {
-                Toast.makeText(context, "verify key: " + key, Toast.LENGTH_SHORT).show();
+            if (key != "") {
                 println("verify key: " + key);
 
-                // CALL VERIFY FUNCTION HERE
+                val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                StrictMode.setThreadPolicy(policy)
+
+                val retrofitAPI = RetrofitHandler.getApiService()
+                val call = retrofitAPI.verify("Hello guis and dis is Afan.\n\nSincerely, Afan.\n<ds>ca489ef6908a0764a6875a82b86e8fa97ef1811830c77bf20811164ae7d3a1333b3f75f525dd6f86b29a4df55a1963cce3027ac33682fd7cb43db1acbada5c52</ds>", key)
+
+                try {
+                    val response = call.execute()
+                    if (response.isSuccessful) {
+                        val verifyResponse = response.body()
+                        val valid = verifyResponse!!.valid
+                        println("VALID? $valid");
+                        Toast.makeText(context, valid.toString(), Toast.LENGTH_SHORT)
+                    } else {
+                        Toast.makeText(context, "Validation failed", Toast.LENGTH_SHORT)
+                    }
+                } catch (e: IOException) {
+                    Toast.makeText(context, "Validation failed", Toast.LENGTH_SHORT)
+                }
+            } else {
+                Toast.makeText(context, "Empty key.", Toast.LENGTH_LONG).show();
             }
         }
 

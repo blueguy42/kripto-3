@@ -4,7 +4,7 @@ package com.fsck.k9.retrofit.response;
 public class VerifyResponse {
     private boolean valid;
 
-    public boolean isValid() {
+    public boolean getValid() {
         return valid;
     }
 
