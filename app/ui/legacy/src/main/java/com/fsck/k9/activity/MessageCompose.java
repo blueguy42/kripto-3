@@ -871,7 +871,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 .setReplyTo(replyToPresenter.getAddresses())
                 .setMessageFormat(currentMessageFormat)
 //                .setText(CrLfConverter.toCrLf(messageContentView.getText()))
-                 .setText(message[0])
+                .setText(message[0])
                 .setAttachments(attachmentPresenter.getAttachments())
                 .setInlineAttachments(attachmentPresenter.getInlineAttachments())
                 .setSignature(CrLfConverter.toCrLf(signatureView.getText()))
@@ -892,6 +892,11 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         if (subjectView.getText().length() == 0 && !alreadyNotifiedUserOfEmptySubject) {
             Toast.makeText(this, R.string.empty_subject, Toast.LENGTH_LONG).show();
             alreadyNotifiedUserOfEmptySubject = true;
+            return;
+        }
+
+        if (isEncrypted && encryptKey.length() != 16) {
+            Toast.makeText(this, "Key must 16 character", Toast.LENGTH_LONG).show();
             return;
         }
 
