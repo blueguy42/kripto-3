@@ -5,19 +5,19 @@ public class KeyResponse {
     private String privateKey;
     private String publicKey;
 
-    String getPrivateKey() {
+    public String getPrivateKey() {
         return privateKey;
     }
 
-    void setPrivateKey(String privateKey) {
+    public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
     }
 
-    String getPublicKey() {
+    public String getPublicKey() {
         return publicKey;
     }
 
-    void setPublicKey(String publicKey) {
+    public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
     }
 }
