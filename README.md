@@ -1,68 +1,48 @@
-# K-9 Mail
+# Kripto 3 Mobile App
 
-[![Latest release](https://img.shields.io/github/release/thundernest/k-9.svg?style=flat-square)](https://github.com/thundernest/k-9/releases/latest)
-[![Latest beta release](https://img.shields.io/github/v/release/thundernest/k-9.svg?include_prereleases&style=flat-square)](https://github.com/thundernest/k-9/releases)
+# Table of Contents
+* [Introduction](#introduction)
+* [Prerequisite](#prerequisite)
+* [How to Run](#how-to-run)
+* [Contributors](#contributors)
 
-K-9 Mail is an open-source email client for Android.
+## Introduction
+This application initially forked from [K-9 Mail](https://github.com/thundernest/k-9).
+K-9 Mail is an open source email client for Android devices that allows users to send and receive email messages. It is built using the Kotlin and Java programming languages.
 
-## Download
+In order to enhance the security of the email messages sent and received through K-9 Mail, encryption and digital signature add-ons have been implemented. It is is integrated with the rest (backend) algorithm. These add-ons are available in two parts of the application: Compose (write) and View (read).
 
-K-9 Mail can be downloaded from a couple of sources:
+### Compose Add-Ons
+The Compose add-ons for K-9 Mail allow users to toggle on/off encryption and digital signature for their outgoing email messages.
+- If encryption is enabled, the user is prompted to input a symmetric key that will be used to encrypt the message.
+- If digital signature is enabled, the application will generate a private and public key from the server.
+- The message will be encrypted/signed when the user clicks the send button.
 
-- [Google Play](https://play.google.com/store/apps/details?id=com.fsck.k9)
-- [F-Droid](https://f-droid.org/repository/browse/?fdid=com.fsck.k9)
-- [Github Releases](https://github.com/thundernest/k-9/releases)
+### View Add-Ons
+The View add-ons for K-9 Mail allow users to view the email messages and decrypt/verify the message.
+- The default displayed message is the result of sign/encrypt. The signed/decrypted message may contain a very long string of characters without spaces. This can result in a message that appears very small on the screen.
+- To decrypt the message, the user can input the symmetric key that was used to encrypt the message then click the ```DECRYPT``` button.
+- To verify the message, the user can input the public key for verifying the signature then click the ```VERIFY``` button.
+- To do both (decrypt and verify), the user canan fill in both fields above and then click the ```DECRYPT AND VERIFY``` button.
+- The application will display the plain message after decryption/verification.
 
-You might also be interested in becoming a [tester](https://forum.k9mail.app/t/how-do-i-become-a-beta-tester/68) to get an early look at new versions.
+## Prerequisite
+- Install [Android Studio](https://developer.android.com/studio)
+- Clone this repository
+   ```
+   https://github.com/blueguy42/kripto-3-fe
+   ```
 
-## Release Notes
+## How to Run
+- Open the repository on Android Studio
+- Set up the mobile device (emulator or physical)
+- Build ```app.k9-mail``` by selecting the configuration and clicking the play button
 
-Check out the [Release Notes](https://github.com/thundernest/k-9/wiki/ReleaseNotes) to find out what changed
-in each version of K-9 Mail.
 
-## Need Help?
+## Contributors
 
-If the app is not behaving like it should, you might find these resources helpful:
+This project was developed by:
 
-- [User Manual](https://docs.k9mail.app/)
-- [Frequently Asked Questions](https://forum.k9mail.app/c/faq)
-- [Support Forum](https://forum.k9mail.app/)
-
-## Translations
-
-Interested in helping to translate K-9 Mail? Contribute here:
-
-- [K-9 Mail localization](https://explore.transifex.com/k-9/k9mail/)
-
-## Contributing
-
-Thank you for contributing! If you're unfamiliar with the code, start by reading the [developer documentation](docs/DESIGN.md)
-
-Please fork this repository and contribute back using [pull requests](https://github.com/thundernest/k-9/pulls).
-
-Any contributions, large or small, major features, bug fixes, unit/integration tests are welcomed and appreciated
-but will be thoroughly reviewed and discussed.
-Please make sure you read the [Code Style Guidelines](https://github.com/thundernest/k-9/wiki/CodeStyle).
-
-## Communication
-
-Aside from discussing changes in [pull requests](https://github.com/thundernest/k-9/pulls) and
-[issues](https://github.com/thundernest/k-9/issues) we use the following communication services:
-
-- Matrix: [#k9mail:matrix.org](https://matrix.to/#/#tb-android:mozilla.org)
-- IRC: [#k9mail on Libera Chat](https://web.libera.chat/#k9mail)
-- [Developer mailing list](https://groups.google.com/forum/#!forum/k-9-dev)
-
-## License
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+- <a href="https://www.linkedin.com/in/ahmad-alfani-handoyo/">13520023 Ahmad Alfani Handoyo</a>
+- <a href="https://www.linkedin.com/in/putri-nurhaliza/">13520066 Putri Nurhaliza</a>
+- <a href="https://www.linkedin.com/in/ubaidillah-ariq-prathama-03535a1ba/">13520085 Ubaidillah Ariq Prathama</a>
